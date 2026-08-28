@@ -1,10 +1,9 @@
 import Foundation
 import OSLog
 
-/// CLAUDE.md §7 (amended): every play tap routes through `DownloadManager.ensureDownloaded` so the
-/// resolver always returns a `.localFile` URL. There's no more direct/HLS/composite path because
-/// YouTube's PoT-protected URLs 403 against AVPlayer's segment requests — we'd rather wait for the
-/// download than ship a broken playback experience.
+/// Legacy download-only resolver retained for protocol and test compatibility. The active playback
+/// path lives in `PlayerStateManager.resolveAndPlay`, which prefers an existing local file, then a
+/// remote HLS/progressive stream, and uses this download pipeline only as a compatibility fallback.
 ///
 /// The resolver still takes a `videoID` for API stability with the playback pipeline. To enrich
 /// the `DownloadMetadata` xattr we'd want the full `Video` (title, channel, thumbnail) — that's

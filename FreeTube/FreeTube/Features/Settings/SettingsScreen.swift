@@ -41,11 +41,14 @@ struct SettingsScreen: View {
                             Text(quality.rawValue).tag(quality)
                         }
                     }
+                    Toggle("Download before playback", isOn: Bindable(model).alwaysDownloadBeforePlayback)
                     Toggle("Autoplay next video", isOn: Bindable(model).autoplayNext)
                 } header: {
                     Text("Playback")
                 } footer: {
-                    Text("Videos download to your device before playback. Lower qualities save space and download faster.")
+                    Text(model.alwaysDownloadBeforePlayback
+                         ? "Videos download to your device before playback."
+                         : "Videos stream immediately. Use the Download button to save them for offline playback.")
                 }
 
                 Section("Search") {
@@ -55,6 +58,7 @@ struct SettingsScreen: View {
                 Section {
                     Toggle("Allow cellular data", isOn: Bindable(model).allowCellularDownloads)
                     Toggle("Prefetch next video", isOn: Bindable(model).prefetchNextInQueue)
+                        .disabled(!model.alwaysDownloadBeforePlayback)
                     Picker("Cache limit", selection: Bindable(model).downloadCacheLimit) {
                         ForEach(DownloadCacheLimit.allCases) { option in
                             Text(option.displayName).tag(option)
@@ -68,7 +72,7 @@ struct SettingsScreen: View {
                 } header: {
                     Text("Downloads")
                 } footer: {
-                    Text("Currently using \(formattedCacheUsage). When the cache exceeds the limit, the oldest downloads are removed to fit.\n\nPrefetch starts a background download of the next queued video as soon as the current one plays, so tapping Next is instant. Turn off to save bandwidth.\n\nParallel fragments controls how many HLS/DASH chunks yt-dlp fetches at once inside a single download — higher values are faster on good connections; values above 8 can trigger YouTube rate-limiting.")
+                    Text("Currently using \(formattedCacheUsage). When the cache exceeds the limit, the oldest downloads are removed to fit.\n\nPrefetch is available in download-before-playback mode and saves the next queued video in the background.\n\nParallel fragments controls how many HLS/DASH chunks yt-dlp fetches at once inside a single download — higher values are faster on good connections; values above 8 can trigger YouTube rate-limiting.")
                 }
 
                 Section {

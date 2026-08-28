@@ -47,7 +47,7 @@ If you do not agree with these terms, do not install or use this software.
     </td>
     <td align="center">
       <img src="screenshots/04_player_downloading_video.jpg" alt="Player showing in-flight yt-dlp download" width="260"><br>
-      <sub><b>Live download</b> · yt-dlp progress before playback starts</sub>
+      <sub><b>Download fallback</b> · progress when a remote stream is unavailable</sub>
     </td>
   </tr>
   <tr>
@@ -169,38 +169,30 @@ See `CLAUDE.md` § 6 for the exact mapping from YouTubeKit response types to ser
 
 ## Playback pipeline
 
-Playback has three independent tiers. Whichever succeeds first wins.
+Playback is stream-first. Existing offline files play locally; otherwise AVPlayer starts from HLS
+or a progressive URL. The persistent yt-dlp pipeline is reserved for explicit downloads, the
+optional download-before-playback setting, and the compatibility fallback when streaming fails.
 
 ```
 User taps a video
         │
         ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ Tier 1: yt-dlp download → local mp4                         │
-│   PythonKit + yt-dlp                                        │
+│ Preferred: AVPlayer streaming (no local file)               │
+│   iOS HLS → iOS progressive → TVHTML5 HLS/progressive       │
+│   Starts without waiting for a complete download            │
+└─────────────────────────────────────────────────────────────┘
+        │   unavailable
+        ▼
+┌─────────────────────────────────────────────────────────────┐
+│ Fallback: yt-dlp / YouTubeKit download → local mp4          │
 │   Mux video+audio in Swift via FFmpegRunner (-c copy)       │
 │   Persists metadata to file xattrs (DownloadsStore)         │
 └─────────────────────────────────────────────────────────────┘
-        │   fails (PoT, n-cipher, 403)
-        ▼
-┌─────────────────────────────────────────────────────────────┐
-│ Tier 2: YouTubeKit progressive/adaptive → local mp4         │
-│   TVHTML5 client → direct URLs (PoT-exempt)                 │
-│   or player.js scrape → cipher-decoded URLs                 │
-│   URLSession download + ffmpeg -c copy mux                  │
-│   Persists metadata to file xattrs                          │
-└─────────────────────────────────────────────────────────────┘
-        │   fails
-        ▼
-┌─────────────────────────────────────────────────────────────┐
-│ Tier 3: AVPlayer streaming (no local file)                  │
-│   iOS HLS → iOS progressive → TVHTML5 HLS → TVHTML5 progressive │
-│   AVPlayer streams the URL directly                         │
-│   Not persisted, not offline-playable                       │
-└─────────────────────────────────────────────────────────────┘
 ```
 
-For most videos, tier 1 wins and you get an offline file. For YouTube's PoT-locked / n-cipher-locked content (kids and family videos most often), tier 1 and 2 fail and tier 3 streams the HLS manifest.
+Normal viewing does not create an offline file. Use the Download button when a video should remain
+available offline.
 
 ---
 
@@ -262,8 +254,8 @@ Cookies typically last 1-2 weeks of inactivity. There is no refresh mechanism �
 
 Two paths into `DownloadManager.ensureDownloaded`:
 
-1. **Implicit (during playback).** Every play tap also produces an offline file at priority `.userInitiated`. The Downloads tab self-populates as you watch.
-2. **Explicit (Download button).** From the player menu, priority `.background`.
+1. **Explicit (Download button).** Saves the selected video at priority `.background`.
+2. **Playback fallback / opt-in.** Used at priority `.userInitiated` only when remote streaming is unavailable or Download before playback is enabled.
 
 Plus a third entry point for non-YouTube content:
 
@@ -275,7 +267,8 @@ All downloaded files land at the **Documents root** and are visible in the iOS F
 
 Settings:
 - **Allow cellular data** (default on) — `NWPathMonitor` gates `ensureDownloaded`.
-- **Prefetch next video** (default on) — background download of the queue's next item so Next-tap is instant.
+- **Download before playback** (default off) — restores persistent download-first playback.
+- **Prefetch next video** — available only in download-before-playback mode.
 - **Concurrent fragments** — yt-dlp `--concurrent-fragments`, default 4.
 - **Download cache limit** — bytes. When exceeded, oldest downloads get evicted.
 

@@ -161,11 +161,26 @@ If a feature seems to need data without a clear mapping above, stop and ask befo
 
 ## 7. Playback pipeline (critical)
 
-This is what the codebase actually does today, not the original v1 design. The flow has three independent tiers — playback starts from whichever tier first succeeds.
+This is what the codebase actually does today. Normal playback is stream-first and does not create
+a persistent file. Existing local files still win immediately; the download pipeline is used for
+explicit downloads, the opt-in download-before-playback setting, and streaming failures.
 
-### Tier 1 — yt-dlp download (`DownloadManager.runYoutubeDLDownload`)
+### Preferred path — remote streaming (`PlayerStateManager.resolveStreamingURL`)
 
-1. User taps a video. `PlayerStateManager.resolveAndPlay` calls `DownloadManager.ensureDownloaded(video:quality:priority:)`.
+When no local file exists and `alwaysDownloadBeforePlayback` is off, the resolver walks four
+sub-tiers and returns the first URL AVPlayer can open directly:
+
+1. iOS-client HLS master playlist
+2. iOS-client progressive MP4
+3. TVHTML5-client HLS master playlist
+4. TVHTML5-client progressive MP4
+
+The signed URL remains in memory only. Playback starts without waiting for a complete file and the
+video does not appear in Downloads.
+
+### Download fallback — yt-dlp (`DownloadManager.runYoutubeDLDownload`)
+
+1. The user explicitly downloads, enables download-before-playback, or remote resolution fails.
 2. **Cache check first.** `localFile(for:)` returns immediately if the mp4 already exists in `Documents/Downloads/<videoID>.mp4`.
 3. **Network gate.** `waitForAllowedNetwork()` blocks the call until the user-allowed network is up (Wi-Fi if `wifiOnlyDownloads` is set).
 4. **Submit to PythonRunner** with priority `.high` (`.userInitiated`) for play taps, `.low` (`.background`) for prefetch / Download All.
@@ -174,7 +189,7 @@ This is what the codebase actually does today, not the original v1 design. The f
 7. **JS bridge installed before download**: `freetube_yt_dlp` (our forked entry point in `Core/JavaScript/FreeTubeYtDlp.swift`) splices `PythonJSBridge.install()` between YoutubeDL-iOS's `injectFakePopen` and `ydl.download`. This wires `JavaScriptCore` as the `deno` runtime for yt-dlp's EJS-based N/SIG challenge solver — formats that previously hit `n challenge solving failed` now resolve in-process. Full architecture in §15.11.
 8. If yt-dlp produces output, optionally mux video+audio and persist as `DownloadedVideo` row.
 
-### Tier 2 — YouTubeKit fallback (`DownloadManager.runYouTubeKitFallback`)
+### Download fallback — YouTubeKit (`DownloadManager.runYouTubeKitFallback`)
 
 Reached when tier 1 returns no file (PoT-locked content, n-cipher failures, 403s on signed URLs).
 
@@ -183,29 +198,18 @@ Reached when tier 1 returns no file (PoT-locked content, n-cipher failures, 403s
    - If TVHTML5 returns zero usable URLs (cipher-protected), `VideoService.fetchInfoWithFormats(id:)` triggers YouTubeKit's player.js scrape. This is increasingly fragile — YouTube has been breaking the `n` decoder regex and we frequently see `"Could not get n-parameter function."` here.
 2. **Strategy 1 — progressive** (`pickBestProgressive`): pick itag 18 or similar with `containsBothTracks`. Download as single mp4 via `URLSession.bytes(for:)`. No mux needed.
 3. **Strategy 2 — adaptive**: `pickBestVideoOnly` + `pickBestAudioOnly`, download both, mux with in-process `FFmpegRunner` using `ffmpeg -c copy -movflags +faststart`.
-4. If neither strategy finds usable formats, throw `streamExtractionFailed` — tier 1 + 2 fail and we hand off to tier 3.
-
-### Tier 3 — streaming-only fallback (`PlayerStateManager.resolveStreamingURL`)
-
-Reached when `ensureDownloaded` throws. **Produces no local file** — AVPlayer streams a remote URL directly.
-
-Walks four sub-tiers, returns first hit:
-1. iOS-client HLS master playlist URL (from `VideoService.fetchInfo`)
-2. iOS-client progressive MP4 URL (highest format with `containsBothTracks` within `preferredQuality.heightCap`)
-3. TVHTML5-client HLS
-4. TVHTML5-client progressive MP4
-
-If all four miss, `loadState = .failed` and the user sees an error toast.
+4. If neither strategy finds usable formats, throw `streamExtractionFailed` and surface a playback
+   error when this was the last remaining fallback.
 
 ### Trade-offs
 
-| | Tier 1 (yt-dlp) | Tier 2 (YouTubeKit) | Tier 3 (streaming) |
+| | Streaming | yt-dlp download | YouTubeKit download |
 |---|---|---|---|
-| Produces file | Yes | Yes | No |
-| Persists to `DownloadedVideo` | Yes | Yes | No |
-| Offline playback | Yes | Yes | No |
-| Works for PoT-locked content | No | No | Often yes (HLS) |
-| Latency (cold) | ~3–10s | ~2–5s | ~1–2s |
+| Produces file | No | Yes | Yes |
+| Persists download metadata | No | Yes | Yes |
+| Offline playback | No | Yes | Yes |
+| Works for PoT-locked content | Often yes (HLS) | No | No |
+| Latency (cold) | ~1–2s | ~3–10s | ~2–5s |
 
 ### Shape
 
@@ -256,15 +260,16 @@ enum PlaybackSource {
 
 ### User-initiated (Download button)
 
-- `DownloadManager.ensureDownloaded(video:quality:priority: .background)` from the explicit Download button in the player menu.
+- `DownloadManager.ensureDownloaded(video:quality:priority: .background)` from the explicit Download button on the video detail screen.
 - Files go to `Documents/Downloads/<videoID>.mp4` and are tracked in SwiftData as `DownloadedVideo`.
 - Visible in the Downloads screen, playable offline.
 
-### Playback-side download (the implicit case)
+### Playback-side download (fallback or opt-in)
 
-- Same `ensureDownloaded` call, priority `.userInitiated`, fired by `PlayerStateManager.resolveAndPlay` whenever a user taps Play.
-- This is why every successful playback also produces an offline file — the player's "fetch" *is* a download. Quirk of the architecture, intentional, makes the Downloads tab self-populate as the user watches.
-- Next-up prefetch: `prefetchNextUpcoming()` fires `ensureDownloaded` for the next queue item at `.background` priority. Just one — we don't chain a long preload that would block user taps behind the `PythonRunner` queue.
+- Same `ensureDownloaded` call, priority `.userInitiated`, but only when remote streaming cannot be
+  resolved or `alwaysDownloadBeforePlayback` is enabled.
+- Next-up prefetch is gated by download-before-playback mode. Streaming mode never silently saves
+  the next queue item.
 
 ### PythonRunner priority queue
 

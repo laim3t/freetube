@@ -8,14 +8,15 @@ struct UserPreferences {
     /// combined progressive mp4 (itag 18), so downloads complete fast and skip the Swift-side
     /// ffmpeg mux step. Users can bump it higher in Settings.
     @AppStorage("preferredQuality") var preferredQualityRaw: String = VideoQuality.p360.rawValue
+    /// Stream immediately by default. Users who prefer every watched video to remain available
+    /// offline can opt into the legacy download-before-playback behavior in Settings.
     @AppStorage("alwaysDownloadBeforePlayback") var alwaysDownloadBeforePlayback: Bool = false
-    /// When `true`, downloads (and playback-time fetches, since those use the same path) are
-    /// allowed to run over cellular. Default is `true` — permissive — so a fresh install
-    /// works out of the box on a phone without Wi-Fi. Users who pay per MB can disable this
-    /// and the network gate in `DownloadManager.waitForAllowedNetwork` will throw until
-    /// Wi-Fi comes back. Was previously stored under the `wifiOnlyDownloads` key with the
-    /// opposite meaning (true = blocked on cellular); fresh key here so the default flips
-    /// cleanly for existing installs.
+    /// When `true`, persistent downloads are allowed to run over cellular. Default is `true` —
+    /// permissive — so an explicit download works out of the box on a phone without Wi-Fi.
+    /// Users who pay per MB can disable this and the network gate in
+    /// `DownloadManager.waitForAllowedNetwork` will throw until Wi-Fi comes back. Was previously
+    /// stored under the `wifiOnlyDownloads` key with the opposite meaning (true = blocked on
+    /// cellular); fresh key here so the default flips cleanly for existing installs.
     @AppStorage("allowCellularDownloads") var allowCellularDownloads: Bool = true
     @AppStorage("autoplayNext") var autoplayNext: Bool = true
     /// When true, `LogFileWriter` opens a new file under `Documents/Logs/` on every app

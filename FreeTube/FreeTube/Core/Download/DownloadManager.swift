@@ -282,12 +282,10 @@ final class PythonSerialExecutor: SerialExecutor, @unchecked Sendable {
 /// Owns the on-disk video cache, runs YoutubeDL-iOS to fetch new ones, and surfaces progress so UI
 /// can render a live transfer queue.
 ///
-/// **Playback contract (CLAUDE.md §7 amended):**
-/// Every play tap calls `ensureDownloaded(video:quality:)`. If `Documents/<id>.mp4` already
-/// exists, we return immediately. Otherwise we kick off a yt-dlp run (via `YoutubeDL.yt_dlp(argv:)`),
-/// wait for it, write a `DownloadMetadata` xattr to the resulting file, and hand the local URL back to the resolver. This
-/// sidesteps every PoT/cookie/HLS edge case in YouTube's CDN — the bytes are on disk before
-/// AVPlayer ever sees them.
+/// Explicit downloads and the player's compatibility fallback call
+/// `ensureDownloaded(video:quality:)`. If `Documents/<id>.mp4` already exists, we return
+/// immediately. Otherwise we kick off a yt-dlp run, wait for it, and write a `DownloadMetadata`
+/// xattr to the resulting file. Normal playback streams remotely and does not enter this path.
 ///
 /// **Progress:** the manager publishes a single `AsyncStream<[DownloadTaskSnapshot]>` that any
 /// observer can subscribe to. Both the Downloads screen and the per-tab badge read from it.

@@ -9,6 +9,8 @@ final class VideoDetailViewModel {
     let videoID: String
     private(set) var info: VideoInfo?
     private(set) var isLoading: Bool = false
+    private(set) var isDownloading: Bool = false
+    private(set) var isDownloaded: Bool = false
     var errorState: ErrorState?
 
     private let videoService: any VideoServicing
@@ -31,6 +33,22 @@ final class VideoDetailViewModel {
         defer { isLoading = false }
         do {
             info = try await videoService.fetchInfo(id: videoID)
+            isDownloaded = DownloadManager.shared.localFile(for: videoID) != nil
+        } catch {
+            errorState = ErrorState(from: error)
+        }
+    }
+
+    func download() async {
+        guard let video = info?.video, !isDownloading, !isDownloaded else { return }
+        isDownloading = true
+        defer { isDownloading = false }
+        do {
+            _ = try await DownloadManager.shared.ensureDownloaded(
+                video: video,
+                quality: UserPreferences().preferredQuality
+            )
+            isDownloaded = true
         } catch {
             errorState = ErrorState(from: error)
         }

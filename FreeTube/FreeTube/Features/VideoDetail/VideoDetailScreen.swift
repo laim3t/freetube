@@ -89,10 +89,18 @@ struct VideoDetailScreen: View {
                 Label("Save", systemImage: "bookmark")
             }
             Button {
-                // TODO: enqueue user download
+                Task { await model.download() }
             } label: {
-                Label("Download", systemImage: "arrow.down.circle")
+                if model.isDownloaded {
+                    Label("Downloaded", systemImage: "checkmark.circle.fill")
+                } else if model.isDownloading {
+                    ProgressView()
+                        .accessibilityLabel("Downloading")
+                } else {
+                    Label("Download", systemImage: "arrow.down.circle")
+                }
             }
+            .disabled(model.isDownloading || model.isDownloaded)
         }
         .labelStyle(.iconOnly)
         .padding(.horizontal)
