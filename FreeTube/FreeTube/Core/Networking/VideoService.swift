@@ -37,7 +37,7 @@ protocol VideoServicing: Sendable {
 /// Wraps `VideoInfosResponse`, `VideoInfosWithDownloadFormatsResponse`, `MoreVideoInfosResponse`.
 final class VideoService: VideoServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "VideoService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "VideoService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client

@@ -29,10 +29,10 @@ import OSLog
 final class SubscriptionRegistry {
     static let shared = SubscriptionRegistry()
 
-    nonisolated fileprivate static let defaultsKey = "com.leshko.freetube.subscriptions"
+    nonisolated fileprivate static let defaultsKey = "com.tankxu.subscriptions"
 
     private(set) var ids: Set<String> = []
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "SubscriptionRegistry")
+    private let log = AppLog(subsystem: "com.tankxu", category: "SubscriptionRegistry")
 
     private init() {
         load()

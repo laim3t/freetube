@@ -18,7 +18,7 @@ protocol SearchServicing: Sendable {
 /// Wraps `SearchResponse` (+Continuation, +Restricted) and `AutoCompletionResponse`.
 final class SearchService: SearchServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "SearchService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "SearchService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client

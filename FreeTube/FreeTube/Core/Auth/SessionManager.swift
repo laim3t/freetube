@@ -10,7 +10,7 @@ final class SessionManager {
 
     private let store = CookieStore.shared
     private let client = YouTubeKitClient.shared
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "SessionManager")
+    private let log = AppLog(subsystem: "com.tankxu", category: "SessionManager")
 
     private init() {}
 

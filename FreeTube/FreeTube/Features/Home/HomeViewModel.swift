@@ -12,7 +12,7 @@ final class HomeViewModel {
     var errorState: ErrorState?
 
     private let service: any HomeServicing
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "HomeViewModel")
+    private let log = AppLog(subsystem: "com.tankxu", category: "HomeViewModel")
 
     init(service: any HomeServicing = HomeService()) {
         self.service = service

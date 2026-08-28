@@ -102,5 +102,5 @@ struct MacCommands: Commands {
 extension Notification.Name {
     /// Posted by `MacCommands` when the user picks a tab via menu / shortcut. `RootView`
     /// listens and updates its `@State selectedTab`. The `object` is a `RootView.Tab`.
-    static let freetubeSelectTab = Notification.Name("com.leshko.freetube.selectTab")
+    static let freetubeSelectTab = Notification.Name("com.tankxu.selectTab")
 }

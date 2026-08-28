@@ -25,7 +25,7 @@ final class HLSResourceLoaderDelegate: NSObject, AVAssetResourceLoaderDelegate {
 
     private let userAgent: String
     private let session: URLSession
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "HLSLoader")
+    private let log = AppLog(subsystem: "com.tankxu", category: "HLSLoader")
 
     init(userAgent: String) {
         self.userAgent = userAgent

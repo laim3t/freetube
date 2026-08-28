@@ -36,7 +36,7 @@ protocol AccountServicing: Sendable {
 /// `isDisconnected == true` (no valid session) so the UI can route to the login screen.
 final class AccountService: AccountServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "AccountService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "AccountService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client

@@ -6,7 +6,7 @@ import OSLog
 /// `.modelContainer(_:)` so any `@Query` view picks it up automatically.
 @available(iOS 17.0, *)
 enum PersistenceController {
-    static let log = AppLog(subsystem: "com.leshko.freetube", category: "Persistence")
+    static let log = AppLog(subsystem: "com.tankxu", category: "Persistence")
 
     static let sharedContainer: ModelContainer = {
         // Downloads moved to file-system + xattr storage (`DownloadsStore`) — no `DownloadedVideo`

@@ -238,7 +238,7 @@ struct PopupContentWrapper: View {
     @State private var progress: Float = 0
     @State private var subtitleText: String = ""
 
-    private static let log = AppLog(subsystem: "com.leshko.freetube", category: "PopupProgress")
+    private static let log = AppLog(subsystem: "com.tankxu", category: "PopupProgress")
 
     var body: some View {
         FullScreenPlayer()

@@ -10,7 +10,7 @@ import UIKit
 /// **How it works.** Each launch with the feature enabled opens a new file under
 /// `Documents/Logs/` named `flux-YYYYMMDDTHHmmss-v<version>-b<build>.log` and writes a
 /// header (app version, build, iOS version, device model, launch timestamp). Then it polls
-/// the OSLogStore every 5 seconds, filters by `subsystem == "com.leshko.freetube"`, and
+/// the OSLogStore every 5 seconds, filters by `subsystem == "com.tankxu"`, and
 /// appends new entries to the file.
 ///
 /// **Why poll instead of intercept**: there's no public API to attach a sink to
@@ -37,11 +37,11 @@ final class LogFileWriter {
     @ObservationIgnored private var lastEntryDate: Date = .distantPast
     @ObservationIgnored private var flushTask: Task<Void, Never>?
     @ObservationIgnored private let preferences = UserPreferences()
-    @ObservationIgnored private let log = AppLog(subsystem: "com.leshko.freetube", category: "LogFileWriter")
+    @ObservationIgnored private let log = AppLog(subsystem: "com.tankxu", category: "LogFileWriter")
 
     /// Subsystem we filter the OSLogStore by. The app uses one subsystem; keeping the
     /// filter to it avoids dumping iOS system noise into the user's log files.
-    nonisolated static let subsystem = "com.leshko.freetube"
+    nonisolated static let subsystem = "com.tankxu"
     /// Poll interval. 5s is a compromise: short enough that logs land near the event,
     /// long enough that the OSLogStore query doesn't run constantly.
     nonisolated static let flushInterval: Duration = .seconds(5)

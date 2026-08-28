@@ -14,7 +14,7 @@ protocol VideoActionsServicing: Sendable {
 /// app's "Add to favorites" action delegates here when signed in.
 final class VideoActionsService: VideoActionsServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "VideoActionsService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "VideoActionsService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client

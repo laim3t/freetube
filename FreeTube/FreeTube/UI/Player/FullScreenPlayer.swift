@@ -695,7 +695,7 @@ struct FullScreenPlayer: View {
         // truth for UI state, and a network failure on the YouTube side shouldn't undo the
         // user's intent. We do log the failure for diagnostics.
         if isSignedIn {
-            let log = AppLog(subsystem: "com.leshko.freetube", category: "FullScreenPlayer")
+            let log = AppLog(subsystem: "com.tankxu", category: "FullScreenPlayer")
             Task {
                 do {
                     let actions: any VideoActionsServicing = VideoActionsService()

@@ -16,7 +16,7 @@ final class SearchViewModel {
 
     private let service: any SearchServicing
     private let preferences = UserPreferences()
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "SearchViewModel")
+    private let log = AppLog(subsystem: "com.tankxu", category: "SearchViewModel")
 
     private var autocompleteTask: Task<Void, Never>?
 

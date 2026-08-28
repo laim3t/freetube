@@ -7,7 +7,7 @@ import OSLog
 /// `PlayerStateManager` calls `update(...)` and `clear()`.
 @MainActor
 enum NowPlayingCenter {
-    private static let log = AppLog(subsystem: "com.leshko.freetube", category: "NowPlaying")
+    private static let log = AppLog(subsystem: "com.tankxu", category: "NowPlaying")
 
     static func update(
         title: String,

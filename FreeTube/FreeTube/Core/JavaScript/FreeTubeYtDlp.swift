@@ -44,7 +44,7 @@ public nonisolated func freetube_yt_dlp(
     progress: @escaping @Sendable ([String: PythonObject]) -> Void,
     log: @escaping @Sendable (String, String) -> Void
 ) async throws {
-    let bridgeLog = AppLog(subsystem: "com.leshko.freetube", category: "FreeTubeYtDlp")
+    let bridgeLog = AppLog(subsystem: "com.tankxu", category: "FreeTubeYtDlp")
 
     // Step 1+2 (collapsed): `YtDlp()`'s convenience init creates its own Context() internally
     // and calls `loadPythonModule()`, which initializes Python, downloads yt-dlp on first run,
@@ -101,8 +101,8 @@ public nonisolated func freetube_yt_dlp(
 /// PythonObject in-process and saves the round-trip.
 @available(iOS 17.0, *)
 public nonisolated func freetube_yt_dlp_extract_info(url: String) async throws -> PythonObject {
-    let bridgeLog = AppLog(subsystem: "com.leshko.freetube", category: "FreeTubeYtDlp")
-    let ytdlpLog = AppLog(subsystem: "com.leshko.freetube", category: "ytdlp")
+    let bridgeLog = AppLog(subsystem: "com.tankxu", category: "FreeTubeYtDlp")
+    let ytdlpLog = AppLog(subsystem: "com.tankxu", category: "ytdlp")
 
     bridgeLog.info("extract_info: about to await YtDlp() init")
     let ytdlp = try await YtDlp()
@@ -139,7 +139,7 @@ public nonisolated func freetube_yt_dlp_extract_info(url: String) async throws -
 
     // Tail task — reads the stderr file every second, emits each new line into the
     // `ytdlp` os.Logger category. `LogFileWriter` picks them up because they share the
-    // same `subsystem == com.leshko.freetube` predicate. Detached + `.utility` so the
+    // same `subsystem == com.tankxu` predicate. Detached + `.utility` so the
     // poll never competes with the Python interpreter for the calling cooperative-pool
     // worker thread.
     let tailTask = Task.detached(priority: .utility) {

@@ -5,7 +5,7 @@ import Security
 /// as listed in the locked stack. Once `KeychainAccess` is added via SPM, swap the body of these
 /// methods to call into `Keychain(service:)`. The call sites in this app do not change.
 enum KeychainHelper {
-    static let service = "com.leshko.freetube"
+    static let service = "com.tankxu"
 
     static func set(_ data: Data, for key: String) throws {
         var query: [String: Any] = [

@@ -22,7 +22,7 @@ nonisolated final class YouTubeKitClient: @unchecked Sendable {
     /// them as the same anonymous session.
     let tvHtmlModel = YouTubeModel()
 
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "YouTubeKitClient")
+    private let log = AppLog(subsystem: "com.tankxu", category: "YouTubeKitClient")
 
     private init() {
         installTVHTML5Overrides()

@@ -28,7 +28,7 @@ protocol PlaylistServicing: Sendable {
 /// - `CreatePlaylistResponse` / `DeletePlaylistResponse` / `MoveVideoInPlaylistResponse`
 final class PlaylistService: PlaylistServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "PlaylistService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "PlaylistService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client

@@ -16,7 +16,7 @@ final class QueueManager {
     var repeatMode: RepeatMode = .off
 
     private var shuffleOrder: [Int] = []
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "QueueManager")
+    private let log = AppLog(subsystem: "com.tankxu", category: "QueueManager")
 
     var current: Video? {
         guard items.indices.contains(currentIndex) else { return nil }

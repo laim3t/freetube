@@ -4,7 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.leshko.freetube.resume-downloads</string>
+		<string>com.tankxu.resume-downloads</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

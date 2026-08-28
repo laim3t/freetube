@@ -12,7 +12,7 @@ This file gives Claude Code the context, constraints, and conventions it must fo
 
 **Platforms:** iOS 17.0+, Swift 5.9+, Xcode 15+.
 
-**Bundle identifier:** `com.leshko.freetube`. This is also the reverse-DNS namespace for the `os.Logger` subsystem, the Keychain cookie key (`com.leshko.freetube.cookies`), the `UserDefaults` keys (subscriptions / downloads / metadata), and internal `Notification.Name`s. Keep all of them on this same domain. Changing the identifier invalidates provisioning profiles and resets Keychain / `UserDefaults` state for any prior install.
+**Bundle identifier:** `com.tankxu`. This is also the reverse-DNS namespace for the `os.Logger` subsystem, the Keychain cookie key (`com.tankxu.cookies`), the `UserDefaults` keys (subscriptions / downloads / metadata), and internal `Notification.Name`s. Keep all of them on this same domain. Changing the identifier invalidates provisioning profiles and resets Keychain / `UserDefaults` state for any prior install.
 
 ---
 
@@ -51,7 +51,7 @@ These come first. Violating them breaks the project.
 | Secure storage | `Security` (raw Keychain via `KeychainHelper`) |
 | Persistence | `SwiftData` (`@Model`); `UserDefaults` for simple flags via `UserPreferences` |
 | Background work | `BackgroundTasks` framework + `URLSession` background config (`BackgroundDownloadCoordinator`) |
-| Logging | `os.Logger` with subsystem `com.leshko.freetube` |
+| Logging | `os.Logger` with subsystem `com.tankxu` |
 | JavaScript runtime | `JavaScriptCore` (`JSContext`) — solves YouTube's N/SIG cipher challenges in-process by faking the `deno` runtime to yt-dlp; see §15.11 |
 
 Adding any other dependency requires an explicit ask in the PR description with justification.
@@ -245,9 +245,9 @@ enum PlaybackSource {
 2. `LoginCoordinator` watches navigation; when the URL transitions to `youtube.com` after sign-in, it calls `WKWebsiteDataStore.default().httpCookieStore.getAllCookies` and filters for `.youtube.com` / `.google.com` domains.
 3. **Cookie de-duplication:** when both `.youtube.com` and `.google.com` versions of the same cookie are present, **prefer `.youtube.com`** (`CookieStore.dedupe`). Length-based tie-breaking failed in practice — both scopes were 12 chars. YouTube-scoped cookies are the ones YouTube actually accepts.
 4. Required cookies (all must be present): `SAPISID`, `__Secure-3PAPISID`, `LOGIN_INFO`, `SID`, `HSID`, `SSID`, `APISID`.
-5. Cookies are serialized as a single Cookie-header string and stored in Keychain under `com.leshko.freetube.cookies` via `KeychainHelper`.
+5. Cookies are serialized as a single Cookie-header string and stored in Keychain under `com.tankxu.cookies` via `KeychainHelper`.
 6. On every app launch, `SessionManager.bootstrap()` reads from Keychain and assigns to `YouTubeModel.shared.cookies` plus `YouTubeKitClient.shared.applyCookies(...)`.
-7. **`SubscriptionRegistry`** persists the user's subscribed channel IDs in `UserDefaults` (`com.leshko.freetube.subscriptions`). Subscribe/unsubscribe optimistically flips this **and** calls the YouTube endpoint. Needed because YouTubeKit's `subscribeStatus` parser doesn't follow `pageHeaderRenderer` entity-key indirection — channel screens were always showing "Subscribe" even on subscribed channels until this cache was added.
+7. **`SubscriptionRegistry`** persists the user's subscribed channel IDs in `UserDefaults` (`com.tankxu.subscriptions`). Subscribe/unsubscribe optimistically flips this **and** calls the YouTube endpoint. Needed because YouTubeKit's `subscribeStatus` parser doesn't follow `pageHeaderRenderer` entity-key indirection — channel screens were always showing "Subscribe" even on subscribed channels until this cache was added.
 8. **`AuthState`** (an `@Observable` singleton) drives root navigation: `.loggedIn` / `.loggedOut` / `.unknown`. On `cookieExpired` / 401-equivalent failures, `SessionManager.handleExpiredSession()` wipes Keychain + sets `AuthState.loggedOut` and the root re-routes to Login.
 
 ---
@@ -321,7 +321,7 @@ Preferences live in `UserDefaults` via a `@AppStorage`-backed `UserPreferences` 
 Use `os.Logger`:
 
 ```swift
-private let log = Logger(subsystem: "com.leshko.freetube", category: "PlaybackResolver")
+private let log = Logger(subsystem: "com.tankxu", category: "PlaybackResolver")
 log.info("Resolving \(videoID, privacy: .public) at quality \(quality.rawValue, privacy: .public)")
 log.error("Stream extraction failed: \(error.localizedDescription, privacy: .public)")
 ```

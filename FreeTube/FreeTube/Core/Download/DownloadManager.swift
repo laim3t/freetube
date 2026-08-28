@@ -31,7 +31,7 @@ actor PythonRunner {
     /// `nonisolated` so we can log from anywhere — including the detached pump task
     /// without an actor hop. Used by every choke point on the Link-probe / YouTube-download
     /// path so a TestFlight log can pinpoint exactly which step stalled.
-    @ObservationIgnored private nonisolated let log = AppLog(subsystem: "com.leshko.freetube", category: "PythonRunner")
+    @ObservationIgnored private nonisolated let log = AppLog(subsystem: "com.tankxu", category: "PythonRunner")
 
     /// Priority levels for incoming yt-dlp work. `.high` is reserved for downloads the user is
     /// actively waiting on (e.g. tapping a video in search results — they want playback now).
@@ -265,7 +265,7 @@ final class PythonSerialExecutor: SerialExecutor, @unchecked Sendable {
     // background work, not UI-blocking, so they shouldn't compete with the main thread for
     // CPU. With `.userInitiated`, list scrolling visibly stuttered while yt-dlp was reading
     // SSL data.
-    private let queue = DispatchQueue(label: "com.leshko.freetube.python", qos: .utility)
+    private let queue = DispatchQueue(label: "com.tankxu.python", qos: .utility)
 
     func enqueue(_ job: UnownedJob) {
         let unowned = asUnownedSerialExecutor()
@@ -328,7 +328,7 @@ final class DownloadManager: TemporaryDownloading {
     /// downloads in parallel for the same id (which would race on the destination path).
     private var inflight: [String: Task<URL, Error>] = [:]
     private let preferences = UserPreferences()
-    @ObservationIgnored private let log = AppLog(subsystem: "com.leshko.freetube", category: "DownloadManager")
+    @ObservationIgnored private let log = AppLog(subsystem: "com.tankxu", category: "DownloadManager")
     @ObservationIgnored private let pathMonitor = NWPathMonitor()
     private var currentPath: NWPath?
 

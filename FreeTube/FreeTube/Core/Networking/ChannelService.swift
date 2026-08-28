@@ -38,7 +38,7 @@ protocol ChannelServicing: Sendable {
 final class ChannelService: ChannelServicing {
     private let client: YouTubeKitClient
     private let videosFallback: ChannelVideosFallbackService
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "ChannelService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "ChannelService")
 
     /// Caches the live `ChannelInfosResponse` per channel so continuation calls can hit it. Actor
     /// isolation keeps reads/writes safe across concurrent pagination requests.

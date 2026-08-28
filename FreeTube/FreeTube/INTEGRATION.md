@@ -31,7 +31,7 @@ Then search the project for `// TODO(YouTubeKit):` and `// TODO(YoutubeDL-iOS):`
 - **Background Modes** (target → Signing & Capabilities → +):
   - "Audio, AirPlay, and Picture in Picture" — required for background audio (§8).
   - "Background fetch" — required for `BGProcessingTaskRequest` (§10).
-- Add `com.leshko.freetube.resume-downloads` to `Info.plist` under `BGTaskSchedulerPermittedIdentifiers`.
+- Add `com.tankxu.resume-downloads` to `Info.plist` under `BGTaskSchedulerPermittedIdentifiers`.
 - Deployment target: iOS 17.0 (SwiftData + `@Observable` are required).
 
 ## 4. What's stubbed vs. what's wired

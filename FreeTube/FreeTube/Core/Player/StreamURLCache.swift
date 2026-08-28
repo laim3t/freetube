@@ -18,7 +18,7 @@ actor StreamURLCache {
 
     private var entries: [Key: Entry] = [:]
     private let ttl: TimeInterval
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "StreamURLCache")
+    private let log = AppLog(subsystem: "com.tankxu", category: "StreamURLCache")
 
     init(ttl: TimeInterval = 30 * 60) {
         self.ttl = ttl

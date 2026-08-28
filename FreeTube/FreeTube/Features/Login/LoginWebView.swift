@@ -6,7 +6,7 @@ import OSLog
 struct LoginWebView: UIViewRepresentable {
     @ObservedObject var coordinator: LoginCoordinator
 
-    private static let log = AppLog(subsystem: "com.leshko.freetube", category: "LoginWebView")
+    private static let log = AppLog(subsystem: "com.tankxu", category: "LoginWebView")
 
     func makeCoordinator() -> Delegate { Delegate(parent: self) }
 

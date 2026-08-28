@@ -25,7 +25,7 @@ protocol SubscriptionServicing: Sendable {
 /// `SubscribeChannelResponse`, `UnsubscribeChannelResponse`.
 final class SubscriptionService: SubscriptionServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "SubscriptionService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "SubscriptionService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client

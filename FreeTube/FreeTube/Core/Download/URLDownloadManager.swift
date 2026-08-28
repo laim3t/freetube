@@ -41,7 +41,7 @@ final class URLDownloadManager {
     // `nonisolated` so the off-main execute() chain (downloadDirect's byte loop in
     // particular) can read these without hopping back to the main actor for every log
     // line / cookie peek.
-    @ObservationIgnored private nonisolated let log = AppLog(subsystem: "com.leshko.freetube", category: "URLDownloadManager")
+    @ObservationIgnored private nonisolated let log = AppLog(subsystem: "com.tankxu", category: "URLDownloadManager")
     @ObservationIgnored private nonisolated let preferences = UserPreferences()
 
     private init() {}

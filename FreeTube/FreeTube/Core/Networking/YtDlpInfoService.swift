@@ -15,7 +15,7 @@ import PythonKit
 /// progress closure for the canonical "extract to primitives, ship primitives" pattern.
 @available(iOS 17.0, *)
 final class YtDlpInfoService: Sendable {
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "YtDlpInfoService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "YtDlpInfoService")
 
     func probe(url: String) async throws -> RemoteMedia {
         log.info("[probe] start url=\(url, privacy: .public)")

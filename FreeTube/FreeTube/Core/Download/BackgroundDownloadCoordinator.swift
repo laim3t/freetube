@@ -18,10 +18,10 @@ import OSLog
 final class BackgroundDownloadCoordinator: NSObject {
     static let shared = BackgroundDownloadCoordinator()
 
-    static let sessionIdentifier = "com.leshko.freetube.downloads"
-    static let bgTaskIdentifier = "com.leshko.freetube.resume-downloads"
+    static let sessionIdentifier = "com.tankxu.downloads"
+    static let bgTaskIdentifier = "com.tankxu.resume-downloads"
 
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "BGDownloads")
+    private let log = AppLog(subsystem: "com.tankxu", category: "BGDownloads")
     private var backgroundCompletionHandler: (() -> Void)?
 
     lazy var session: URLSession = {

@@ -13,7 +13,7 @@ final class VideoDetailViewModel {
 
     private let videoService: any VideoServicing
     private let actions: any VideoActionsServicing
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "VideoDetailViewModel")
+    private let log = AppLog(subsystem: "com.tankxu", category: "VideoDetailViewModel")
 
     init(
         videoID: String,

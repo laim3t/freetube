@@ -132,7 +132,7 @@ struct VideoMoreActionsMenu: View {
         try? modelContext.save()
 
         if isSignedIn {
-            let log = AppLog(subsystem: "com.leshko.freetube", category: "VideoMoreActionsMenu")
+            let log = AppLog(subsystem: "com.tankxu", category: "VideoMoreActionsMenu")
             Task { [videoID = video.id] in
                 do {
                     let actions: any VideoActionsServicing = VideoActionsService()

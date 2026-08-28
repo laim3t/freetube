@@ -38,7 +38,7 @@ import PythonSupport
 /// ranks `deno` highest at 1000 and uses it if available, so wiring just deno is enough.
 @available(iOS 17.0, *)
 nonisolated enum PythonJSBridge {
-    private static let log = AppLog(subsystem: "com.leshko.freetube", category: "JSBridge")
+    private static let log = AppLog(subsystem: "com.tankxu", category: "JSBridge")
 
     /// The fake path we pass as `js_runtimes={'deno': {'path': ...}}` and recognize in our
     /// patched `Pop.__init__`. Doesn't have to be a real path — yt-dlp only uses it as the
@@ -71,8 +71,13 @@ nonisolated enum PythonJSBridge {
     /// modification. `JSContext` doesn't ship a `console` global, so the prologue defines
     /// one inside the evaluation scope.
     private static func installEvalJSBuiltin() {
-        let evalJS = PythonFunction { (args: PythonObject) -> PythonConvertible in
-            guard let code = String(args[0]) else {
+        // The explicitly typed `PythonObject` initializer receives the first Python
+        // argument directly. It is not the full positional-arguments tuple (the
+        // `[PythonObject]` overload has that contract). Indexing this value again would
+        // therefore evaluate only the first character of the JavaScript source and make
+        // EJS appear to succeed with empty stdout.
+        let evalJS = PythonFunction { (codeObject: PythonObject) -> PythonConvertible in
+            guard let code = String(codeObject) else {
                 let builtins = Python.import("builtins")
                 let err = builtins.TypeError("eval_js: first argument must be a string")
                 throw PythonError.exception(err, traceback: nil)

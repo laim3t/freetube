@@ -50,7 +50,7 @@ final class FetchViewModel {
     private var probeTask: Task<Void, Never>?
     @ObservationIgnored private let infoService = YtDlpInfoService()
     @ObservationIgnored private let preferences = UserPreferences()
-    @ObservationIgnored private let log = AppLog(subsystem: "com.leshko.freetube", category: "FetchViewModel")
+    @ObservationIgnored private let log = AppLog(subsystem: "com.tankxu", category: "FetchViewModel")
 
     init() {
         recents = preferences.recentFetchURLs

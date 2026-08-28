@@ -6,7 +6,7 @@ import OSLog
 /// after constructing the player state manager. The targets retain weak refs to avoid retain cycles.
 @MainActor
 enum RemoteCommandCenter {
-    private static let log = AppLog(subsystem: "com.leshko.freetube", category: "RemoteCommands")
+    private static let log = AppLog(subsystem: "com.tankxu", category: "RemoteCommands")
     private static let skipInterval: TimeInterval = 15
 
     static func wire(to player: PlayerStateManager) {

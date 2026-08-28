@@ -44,7 +44,7 @@ final class YtDlpUpdater {
     /// roughly weekly, so a 7-day TTL aligns with how often there's something new to pull.
     static let ttl: TimeInterval = 7 * 24 * 60 * 60
 
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "YtDlpUpdater")
+    private let log = AppLog(subsystem: "com.tankxu", category: "YtDlpUpdater")
     private let preferences = UserPreferences()
 
     /// True while a download is in flight. Settings observes this to disable the button and

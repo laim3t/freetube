@@ -29,7 +29,7 @@ protocol CommentServicing: Sendable {
 /// TODO(YouTubeKit): wire each method to its response type. All require cookies.
 final class CommentService: CommentServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "CommentService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "CommentService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client

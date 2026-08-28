@@ -24,7 +24,7 @@ final class ChannelVideosFallbackService: Sendable {
     private let session: URLSession
     private let client: YouTubeKitClient
     private let state = State()
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "ChannelVideosFallback")
+    private let log = AppLog(subsystem: "com.tankxu", category: "ChannelVideosFallback")
 
     init(client: YouTubeKitClient = .shared, session: URLSession = .shared) {
         self.client = client

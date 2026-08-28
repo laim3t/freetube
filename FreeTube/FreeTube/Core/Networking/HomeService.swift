@@ -11,7 +11,7 @@ protocol HomeServicing: Sendable {
 /// Wraps YouTubeKit's `HomeScreenResponse` (+Continuation) and `TrendingVideosResponse`.
 final class HomeService: HomeServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "HomeService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "HomeService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client

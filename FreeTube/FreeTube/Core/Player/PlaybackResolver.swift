@@ -11,7 +11,7 @@ import OSLog
 /// passed in by `PlayerStateManager.load(_:)` via the `resolveDownload(video:quality:)` entry.
 final class PlaybackResolver: PlaybackResolving {
     private let downloads: DownloadManagerLike
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "PlaybackResolver")
+    private let log = AppLog(subsystem: "com.tankxu", category: "PlaybackResolver")
 
     init(downloads: DownloadManagerLike = DownloadManager.shared) {
         self.downloads = downloads

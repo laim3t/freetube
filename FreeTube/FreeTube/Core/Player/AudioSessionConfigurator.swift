@@ -9,7 +9,7 @@ import OSLog
 /// must also declare the `audio` `UIBackgroundModes` entry in `Info.plist`. Add it via Xcode →
 /// target → Signing & Capabilities → Background Modes → Audio, AirPlay, and Picture in Picture.
 enum AudioSessionConfigurator {
-    private static let log = AppLog(subsystem: "com.leshko.freetube", category: "AudioSession")
+    private static let log = AppLog(subsystem: "com.tankxu", category: "AudioSession")
 
     static func configure() {
         let session = AVAudioSession.sharedInstance()

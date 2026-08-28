@@ -26,11 +26,11 @@ final class DownloadsStore {
 
     /// Name of the notification any code path posts after touching the Downloads folder.
     /// Avoids hardcoded strings sprinkled across writers.
-    nonisolated static let didChange = Notification.Name("com.leshko.freetube.downloadsDidChange")
+    nonisolated static let didChange = Notification.Name("com.tankxu.downloadsDidChange")
 
     /// xattr key holding the serialized `DownloadMetadata` for a file. App-prefixed so
     /// other tools (Files.app, Finder) don't show it as plain text.
-    nonisolated static let metadataXattrKey = "com.leshko.freetube.downloadMetadata"
+    nonisolated static let metadataXattrKey = "com.tankxu.downloadMetadata"
 
     /// JPEG compression target. ~10 KB at 200×112 for typical YouTube thumbnails — fits
     /// comfortably in an xattr value with room to spare.
@@ -45,7 +45,7 @@ final class DownloadsStore {
     /// to show a spinner next to the cache-size label on first launch.
     private(set) var isScanning: Bool = false
 
-    @ObservationIgnored private let log = AppLog(subsystem: "com.leshko.freetube", category: "DownloadsStore")
+    @ObservationIgnored private let log = AppLog(subsystem: "com.tankxu", category: "DownloadsStore")
     @ObservationIgnored private var notificationObserver: NSObjectProtocol?
     /// Most recent in-flight scan. Cancelled before starting a new one so back-to-back
     /// `didChange` notifications can't pile up several stale scans whose late completions

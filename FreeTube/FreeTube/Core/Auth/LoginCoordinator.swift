@@ -27,7 +27,7 @@ final class LoginCoordinator: NSObject, ObservableObject {
         state = .idle
     }
 
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "LoginCoordinator")
+    private let log = AppLog(subsystem: "com.tankxu", category: "LoginCoordinator")
     private let session = SessionManager.shared
 
     /// Start URL that tells Google "this is a YouTube sign-in" via the `service=youtube` and

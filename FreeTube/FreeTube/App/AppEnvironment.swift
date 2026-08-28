@@ -33,10 +33,10 @@ final class AppEnvironment {
     /// Phase 1 of the JS-runtime work plan: prove `JavaScriptCore` is wired correctly in our
     /// build and can evaluate the kinds of operations YouTube's n-cipher relies on (string
     /// methods, array methods, bitwise ops, IIFE-style functions). Logs pass/fail to the
-    /// Console.app subsystem `com.leshko.freetube/JSEvaluator`. Remove or downgrade once the
+    /// Console.app subsystem `com.tankxu/JSEvaluator`. Remove or downgrade once the
     /// integration work is shipped.
     private func runJavaScriptCoreSmokeTest() {
-        let log = AppLog(subsystem: "com.leshko.freetube", category: "JSEvaluator")
+        let log = AppLog(subsystem: "com.tankxu", category: "JSEvaluator")
 
         struct Case { let name: String; let code: String; let expected: String }
         let cases: [Case] = [

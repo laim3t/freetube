@@ -52,7 +52,7 @@ final class PlayerStateManager {
     let queue: QueueManager
     private let resolver: any PlaybackResolving
     private let preferences: UserPreferences
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "PlayerStateManager")
+    private let log = AppLog(subsystem: "com.tankxu", category: "PlayerStateManager")
 
     /// Sticky "this queue is endless" intent. Set to `true` whenever the user loads a video
     /// without explicitly skipping recommendations (Home / Search / Mini-player / row taps),

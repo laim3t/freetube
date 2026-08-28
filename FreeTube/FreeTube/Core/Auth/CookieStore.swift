@@ -6,7 +6,7 @@ import OSLog
 final class CookieStore {
     static let shared = CookieStore()
 
-    static let keychainKey = "com.leshko.freetube.cookies"
+    static let keychainKey = "com.tankxu.cookies"
 
     /// CLAUDE.md §9 list. Login is only considered successful when *all* of these are present.
     static let requiredCookieNames: Set<String> = [
@@ -19,7 +19,7 @@ final class CookieStore {
         "APISID"
     ]
 
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "CookieStore")
+    private let log = AppLog(subsystem: "com.tankxu", category: "CookieStore")
 
     private init() {}
 

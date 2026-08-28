@@ -19,7 +19,7 @@ protocol HistoryServicing: Sendable {
 /// future UI needs them, but the current `HistoryScreen` just shows a flat list.
 final class HistoryService: HistoryServicing {
     private let client: YouTubeKitClient
-    private let log = AppLog(subsystem: "com.leshko.freetube", category: "HistoryService")
+    private let log = AppLog(subsystem: "com.tankxu", category: "HistoryService")
 
     nonisolated init(client: YouTubeKitClient = .shared) {
         self.client = client
