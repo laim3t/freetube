@@ -32,32 +32,46 @@ jobs:
             -scheme FreeTube \
             -derivedDataPath "$RUNNER_TEMP/DerivedData"
 
-      - name: Build unsigned device app
+      - name: Archive unsigned device app
         run: |
           set -euo pipefail
-          xcodebuild \
+          xcodebuild archive \
             -project FreeTube/FreeTube.xcodeproj \
             -scheme FreeTube \
             -configuration Release \
-            -sdk iphoneos \
             -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/FreeTube.xcarchive" \
             -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             COMPILER_INDEX_STORE_ENABLE=NO \
+            ENABLE_DEBUG_DYLIB=NO \
+            ENABLE_PREVIEWS=NO \
+            ENABLE_TESTABILITY=NO \
+            SWIFT_OPTIMIZATION_LEVEL=-O \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="-" \
             DEVELOPMENT_TEAM= \
             PROVISIONING_PROFILE_SPECIFIER= \
             AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGNING_REQUIRED=NO \
-            build
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Package IPA
         run: |
           set -euo pipefail
-          APP=$(find "$RUNNER_TEMP/DerivedData" -name 'FreeTube.app' -path '*iphoneos*' | head -1)
+          APP=$(find "$RUNNER_TEMP/FreeTube.xcarchive" -name 'FreeTube.app' | head -1)
           echo "APP=$APP"
           test -n "$APP"
           test -d "$APP"
+          SIZE=$(stat -f%z "$APP/FreeTube")
+          echo "main binary size=$SIZE"
+          ls -lh "$APP" | head -50
+          if [ -f "$APP/FreeTube.debug.dylib" ]; then
+            echo "ERROR: debug dylib still present"
+            exit 1
+          fi
+          if [ "$SIZE" -lt 1000000 ]; then
+            echo "ERROR: main binary still looks like a stub ($SIZE bytes)"
+            exit 1
+          fi
           rm -rf Payload
           mkdir Payload
           cp -R "$APP" Payload/
