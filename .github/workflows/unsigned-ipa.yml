@@ -1,0 +1,72 @@
+name: Unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [unsigned-ipa]
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: |
+          set -euo pipefail
+          ls /Applications | grep -i Xcode || true
+          newest=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Using $newest"
+          sudo xcode-select -s "$newest/Contents/Developer"
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: List schemes
+        run: xcodebuild -project FreeTube/FreeTube.xcodeproj -list
+
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project FreeTube/FreeTube.xcodeproj \
+            -scheme FreeTube \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData"
+
+      - name: Build unsigned device app
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project FreeTube/FreeTube.xcodeproj \
+            -scheme FreeTube \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="-" \
+            DEVELOPMENT_TEAM= \
+            PROVISIONING_PROFILE_SPECIFIER= \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Package IPA
+        run: |
+          set -euo pipefail
+          APP=$(find "$RUNNER_TEMP/DerivedData" -name 'FreeTube.app' -path '*iphoneos*' | head -1)
+          echo "APP=$APP"
+          test -n "$APP"
+          test -d "$APP"
+          rm -rf Payload
+          mkdir Payload
+          cp -R "$APP" Payload/
+          zip -qry FreeTube-unsigned.ipa Payload
+          ls -lh FreeTube-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FreeTube-unsigned
+          path: FreeTube-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
