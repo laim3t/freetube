@@ -75,6 +75,13 @@ jobs:
           rm -rf Payload
           mkdir Payload
           cp -R "$APP" Payload/
+          # Strip leftover ad-hoc signatures so the user's signer can deep-sign everything.
+          find Payload -name '_CodeSignature' -type d -prune -exec rm -rf {} +
+          while IFS= read -r -d '' bin; do
+            if file "$bin" | grep -q 'Mach-O'; then
+              codesign --remove-signature "$bin" || true
+            fi
+          done < <(find Payload -type f -print0)
           zip -qry FreeTube-unsigned.ipa Payload
           ls -lh FreeTube-unsigned.ipa
 
