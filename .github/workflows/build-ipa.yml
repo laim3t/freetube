@@ -1,0 +1,83 @@
+name: Build unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "FreeTube/**"
+      - ".github/workflows/build-ipa.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  ipa:
+    name: Unsigned iOS IPA
+    runs-on: macos-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: |
+          set -euo pipefail
+          ls /Applications | grep -i xcode || true
+          XCODE_APP="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          echo "Using ${XCODE_APP}"
+          sudo xcode-select -s "${XCODE_APP}/Contents/Developer"
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Show project schemes
+        working-directory: FreeTube
+        run: xcodebuild -list -project FreeTube.xcodeproj
+
+      - name: Resolve Swift packages
+        working-directory: FreeTube
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project FreeTube.xcodeproj \
+            -scheme FreeTube \
+            -clonedSourcePackagesDirPath "$GITHUB_WORKSPACE/SourcePackages"
+
+      - name: Build unsigned iOS app
+        working-directory: FreeTube
+        run: |
+          set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          xcodebuild \
+            -project FreeTube.xcodeproj \
+            -scheme FreeTube \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$GITHUB_WORKSPACE/DerivedData" \
+            -clonedSourcePackagesDirPath "$GITHUB_WORKSPACE/SourcePackages" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            build
+
+          APP="$(find "$GITHUB_WORKSPACE/DerivedData" -path '*/Release-iphoneos/FreeTube.app' -type d | head -n 1)"
+          echo "APP=${APP}"
+          test -n "${APP}"
+          test -d "${APP}"
+          mkdir -p Payload
+          rm -rf Payload/FreeTube.app
+          ditto "${APP}" Payload/FreeTube.app
+          zip -qry "$GITHUB_WORKSPACE/out/FreeTube-unsigned.ipa" Payload
+          ls -lh "$GITHUB_WORKSPACE/out/FreeTube-unsigned.ipa"
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreeTube-unsigned-ipa
+          path: out/FreeTube-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
