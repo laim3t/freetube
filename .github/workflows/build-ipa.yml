@@ -15,8 +15,8 @@ permissions:
 jobs:
   ipa:
     name: Unsigned iOS IPA
-    runs-on: macos-latest
-    timeout-minutes: 180
+    runs-on: macos-15
+    timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,53 +24,73 @@ jobs:
       - name: Select newest Xcode
         run: |
           set -euo pipefail
-          ls /Applications | grep -i xcode || true
-          XCODE_APP="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
-          echo "Using ${XCODE_APP}"
-          sudo xcode-select -s "${XCODE_APP}/Contents/Developer"
+          ls /Applications | grep -i Xcode || true
+          newest="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          echo "Using ${newest}"
+          sudo xcode-select -s "${newest}/Contents/Developer"
           xcodebuild -version
           xcodebuild -showsdks
 
-      - name: Show project schemes
-        working-directory: FreeTube
-        run: xcodebuild -list -project FreeTube.xcodeproj
+      - name: List schemes
+        run: xcodebuild -project FreeTube/FreeTube.xcodeproj -list
 
       - name: Resolve Swift packages
-        working-directory: FreeTube
         run: |
           xcodebuild -resolvePackageDependencies \
-            -project FreeTube.xcodeproj \
+            -project FreeTube/FreeTube.xcodeproj \
             -scheme FreeTube \
-            -clonedSourcePackagesDirPath "$GITHUB_WORKSPACE/SourcePackages"
+            -derivedDataPath "$RUNNER_TEMP/DerivedData"
 
-      - name: Build unsigned iOS app
-        working-directory: FreeTube
+      - name: Archive unsigned device app
         run: |
           set -euo pipefail
-          mkdir -p "$GITHUB_WORKSPACE/out"
-          xcodebuild \
-            -project FreeTube.xcodeproj \
+          xcodebuild archive \
+            -project FreeTube/FreeTube.xcodeproj \
             -scheme FreeTube \
             -configuration Release \
-            -sdk iphoneos \
             -destination 'generic/platform=iOS' \
-            -derivedDataPath "$GITHUB_WORKSPACE/DerivedData" \
-            -clonedSourcePackagesDirPath "$GITHUB_WORKSPACE/SourcePackages" \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
+            -archivePath "$RUNNER_TEMP/FreeTube.xcarchive" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            ENABLE_DEBUG_DYLIB=NO \
+            ENABLE_PREVIEWS=NO \
+            ENABLE_TESTABILITY=NO \
+            SWIFT_OPTIMIZATION_LEVEL=-O \
             CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM="" \
-            PROVISIONING_PROFILE_SPECIFIER="" \
-            build
+            CODE_SIGN_IDENTITY="-" \
+            DEVELOPMENT_TEAM= \
+            PROVISIONING_PROFILE_SPECIFIER= \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=NO
 
-          APP="$(find "$GITHUB_WORKSPACE/DerivedData" -path '*/Release-iphoneos/FreeTube.app' -type d | head -n 1)"
+      - name: Package IPA
+        run: |
+          set -euo pipefail
+          APP="$(find "$RUNNER_TEMP/FreeTube.xcarchive" -name 'FreeTube.app' | head -1)"
           echo "APP=${APP}"
           test -n "${APP}"
           test -d "${APP}"
-          mkdir -p Payload
-          rm -rf Payload/FreeTube.app
-          ditto "${APP}" Payload/FreeTube.app
+          SIZE="$(stat -f%z "${APP}/FreeTube")"
+          echo "main binary size=${SIZE}"
+          ls -lh "${APP}" | head -50
+          if [ -f "${APP}/FreeTube.debug.dylib" ]; then
+            echo "ERROR: debug dylib still present"
+            exit 1
+          fi
+          if [ "${SIZE}" -lt 1000000 ]; then
+            echo "ERROR: main binary still looks like a stub (${SIZE} bytes)"
+            exit 1
+          fi
+          rm -rf Payload
+          mkdir Payload
+          cp -R "${APP}" Payload/
+          find Payload -name '_CodeSignature' -type d -prune -exec rm -rf {} +
+          while IFS= read -r -d '' bin; do
+            if file "${bin}" | grep -q 'Mach-O'; then
+              codesign --remove-signature "${bin}" || true
+            fi
+          done < <(find Payload -type f -print0)
+          mkdir -p "$GITHUB_WORKSPACE/out"
           zip -qry "$GITHUB_WORKSPACE/out/FreeTube-unsigned.ipa" Payload
           ls -lh "$GITHUB_WORKSPACE/out/FreeTube-unsigned.ipa"
 
